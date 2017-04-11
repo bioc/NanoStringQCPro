@@ -36,12 +36,16 @@ options(width=80)
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
+
+\title{NacoStringQCPro}
+\author{Dorothee Nickles, Thomas Sandmann, Robert Ziman, Richard Bourgon}
+\date{Modified: April 10, 2017. Compiled: \today}   % cf. Rsamtools/vignettes/Rsamtools-Overview.Rnw [zimanr 10-Apr-2017]
+
 \begin{document}
 
-\title{NanoStringQCPro}
-\author{Dorothee Nickles, Thomas Sandmann, Robert Ziman, Richard Bourgon}
-\date{\today}
 \maketitle
+
+\tableofcontents
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -52,7 +56,7 @@ options(width=80)
 
 \section{Scope}
 
-The \Rpackage{NanoStringQCPro} package facilitates preprocessing and quality control of NanoString\textsuperscript{\textregistered}\ gene expression data. It provides functions for creating an \Rclass{RccSet} (an extension of the standard \Rclass{ExpressionSet} class) from the files produced by an nCounter\textsuperscript{\textregistered}\ mRNA Gene Expression assay, performing NanoString\textsuperscript{\textregistered}-recommended background correction and normalization, and generating a report with quality metrics that can be used to identify outlier samples and poorly performing probes (i.e. probes with signals within noise range). The overall workflow is outlined in Figure \ref{fig:workflow}.
+The \Rpackage{NanoStringQCPro} package facilitates preprocessing and quality control of NanoString\textsuperscript{\textregistered}\ gene expression data. It provides functions for creating an \Rclass{RccSet} (an extension of the standard \Rclass{ExpressionSet} class) from the files produced by an nCounter\textsuperscript{\textregistered}\ mRNA Gene Expression assay, performing NanoString\textsuperscript{\textregistered}-recommended background correction and normalization, and generating a QC report with metrics that can be used to identify outlier samples and poorly performing probes (i.e. probes with signals within noise range). The overall workflow is outlined in Figure \ref{fig:workflow} (see next page).
 
 \begin{figure}[hb!]     % http://stackoverflow.com/a/3134236
 \label{fig:workflow}  
@@ -114,7 +118,6 @@ The function has a few optional arguments that are described in more detail in i
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-\newpage
 \section{RccSet loaded with NanoString\textsuperscript{\textregistered}\ data}
 
 The object returned by \Rfunction{newRccSet()} is an \Rclass{RccSet}. This class is a light extension of the standard \Rclass{ExpressionSet} class, and it enables \Rpackage{NanoStringQCPro} to more rigorously make use of the base \Rclass{ExpressionSet} data structure in a manner suitable for the preprocessing and quality control of NanoString\textsuperscript{\textregistered}\ data.
@@ -202,7 +205,7 @@ The following subsections further describe each individual preprocessing step.
 
 The positive spike-in RNA hybridization controls for each lane may be used to estimate the overall efficiency of hybridization and recovery for each lane. To do so, a lane-specific summary (e.g., sum or, equivalently, average) of positive control counts is first calculated. The average of these per-lane values is then used as the target, and all counts for each lane are then scaled so that all lane-specific positive control summaries match the target.
 
-The \Rfunction{posCtrlNorm()} function performs positive control normalization. You can choose mean, median, or sum (the default) as the summary of positive control counts. NanoString\textsuperscript{\textregistered}\ advises caution with interpreting results of samples with positive control scaling factors outside the range of 0.3 to 3 since values outside this range may indicate significant under-performance of the respective lanes. A plot highlighting any outliers is provided in the QC report (see the \textbf{Quality control of NanoString\textsuperscript{\textregistered}\ expression data} section below), and \Rfunction{posCtrlNorm()} records the positive control scaling factors in a column named \Rcode{PosFactor} in the output's \Rcode{phenoData} for additional inspection.
+The \Rfunction{posCtrlNorm()} function performs positive control normalization and stores the results in a matrix called \Rcode{posCtrlData} in the \Rcode{assayData} slot. (\textbf{Note:} this differs from the behavior of other packages dealing with \Rclass{ExpressionSet} objects that modify the values in \Rcode{exprs}. The implementation was chosen in order to handle certain cases where the QC report needs to perform its own preprocessing on a given \Rclass{RccSet}.) You can choose mean, median, or sum (the default) as the summary of positive control counts. NanoString\textsuperscript{\textregistered}\ advises caution with interpreting results of samples with positive control scaling factors outside the range of 0.3 to 3 since values outside this range may indicate significant under-performance of the respective lanes. A plot highlighting any outliers is provided in the QC report, and \Rfunction{posCtrlNorm()} records the positive control scaling factors in a column named \Rcode{PosFactor} in the output's \Rcode{phenoData} for additional inspection.
 
 <<posCtrlNorm>>=
 adj_example_rccSet <- posCtrlNorm(example_rccSet, summaryFunction="sum")
@@ -227,6 +230,8 @@ As mentioned above, NanoString\textsuperscript{\textregistered}\ includes severa
 
 A few examples are shown below using the \Rfunction{getBackground()} function. The algorithm that mimics the calculation used in NanoString\textsuperscript{\textregistered}\ nSolver\texttrademark\ Analysis Software takes effect when the option to do combined probe- and lane-specific background is selected, and a full description of the algorithm and its parameters can be found in the man page for the \Rcode{nSolverBackground()} function in this package.
 
+\textbf{Note:} for datasets that do not contain blanks, use \Rcode{bgReference="negatives"} or \Rcode{preproRccSet()} will throw an error.
+
 <<getBackground>>=
 # Get background based on median signal for each probe in blank measurements:
 bg1 <- getBackground(adj_example_rccSet, bgReference="blanks", summaryFunction="median")
@@ -234,7 +239,7 @@ bg1 <- getBackground(adj_example_rccSet, bgReference="blanks", summaryFunction="
 # ...based on mean of negative controls:
 bg2 <- getBackground(adj_example_rccSet, bgReference="negatives", summaryFunction="mean")
 
-# ...using the same implementation as in the nSolver software:
+# ...using an implementation mimicking that of the nSolver software:
 bg3 <- getBackground(adj_example_rccSet, bgReference="both", stringency=1)
 @ 
 
@@ -275,13 +280,13 @@ hknorm_example_rccSet <- contentNorm(rccSet=bgcorr_example_rccSet, method="house
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
-%   Quality control
+%   QC report
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-\section{Quality control of NanoString\textsuperscript{\textregistered}\ expression data}
+\section{QC report and quality control of NanoString\textsuperscript{\textregistered}\ expression data}
 
-\Rpackage{NanoStringQCPro} provides a single function, \Rfunction{makeQCReport()}, that generates a QC report in HTML format:
+For quality control of NanoString\textsuperscript{\textregistered}\ expression data, \Rpackage{NanoStringQCPro} provides a single function, \Rfunction{makeQCReport()}, that generates a QC report in HTML format:
 
 <<makeQCReport>>=
 qc_example_rccSet <- makeQCReport(norm_example_rccSet, "example_QC_report")

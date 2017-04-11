@@ -1509,6 +1509,8 @@ setGeneric( "preprocRccSet", function( rccSet, ... ) standardGeneric( "preprocRc
 ##' addition:
 ##'
 ##' \itemize{
+##'   \item If blanks are not present in the data, use bgReference="negatives"
+##'         to prevent the function from throwing an error.
 ##'   \item If positive control normalization is performed, a column named
 ##'         'PosCtrl' is added to the output's phenoData to record the
 ##'         positive control scaling factors.

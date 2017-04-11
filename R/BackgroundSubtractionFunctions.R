@@ -127,8 +127,8 @@ setGeneric( "getBackground", function( rccSet, ... ) standardGeneric( "getBackgr
 ##' depends upon correct annotation in the RccSet: if the \code{bgReference}
 ##' argument is set to \code{"blanks"}, it expects blank measurements (i.e.,
 ##' water runs) to have their phenoData SampleType set to the value indicating
-##' blanks (see getBlankLabel(); normally this value would have been set using
-##' an argument to newRccSet()). If \code{bgReference} is set to
+##' blanks or an error will be thrown. (See getBlankLabel(); normally this value
+##' would have been set using an argument to newRccSet()). If \code{bgReference} is set to
 ##' \code{"negatives"}, then it expects to find the negative control probes via
 ##' CodeClass == "Negative". If set to \code{"both"}, it expects both of the above and
 ##' will calculate initial background estimates using an algorithm that mimics
@@ -228,6 +228,10 @@ setMethod(
 
         if (bgReference == "both") {
 
+            if (!hasBlanks(rccSet)) {
+                stop("bgReference == \"both\" but the RccSet does not contain blanks (try bgReference=\"negatives\" instead)")
+            }
+
             bgEstimates <- nSolverBackground(rccSet,
                                              stringency,
                                              shrink = nSolverBackground.shrink,
@@ -236,7 +240,12 @@ setMethod(
 
         } else if (bgReference == "blanks") {
 
-            stopifnot(hasBlanks(rccSet))
+            # Previously the code below was just "stopifnot(hasBlanks(rccSet))".
+            # Replaced this with a more helpful error message since several users emailed about
+            # datasets that do not have blanks. [zimanr 10-Apr-2017]
+            if (!hasBlanks(rccSet)) {
+                stop("bgReference == \"blanks\" but the RccSet does not contain blanks (try bgReference=\"negatives\" instead)")
+            }
 
             blanks <- (pData(rccSet)$SampleType %in% blankLabel)
             refMed <- apply( M[, blanks], 1, metric1 )
