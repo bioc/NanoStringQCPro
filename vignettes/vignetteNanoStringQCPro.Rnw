@@ -1,3 +1,4 @@
+%\VignetteEngine{knitr::knitr}
 %\VignetteIndexEntry{NanoStringQCPro overview}
 %\VignetteDepends{}
 %\VignetteKeywords{NanoStringQCPro}
@@ -5,8 +6,11 @@
 
 \documentclass[11pt]{article}
 
-\usepackage{changepage}
-\newenvironment{Schunk}{\begin{adjustwidth}{.25in}{.25in}\footnotesize}{\end{adjustwidth}}
+% [zimanr 11-Oct-2017]
+% Commented out the two lines below since they appeared to be related to an Sweave/LaTeX
+% compile issue that came up after recent changes to BiocStyle (see my other comment below).
+% \usepackage{changepage}
+% \newenvironment{Schunk}{\begin{adjustwidth}{.25in}{.25in}\footnotesize}{\end{adjustwidth}}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
@@ -14,10 +18,13 @@
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-%
-% http://www.bioconductor.org/packages/release/bioc/vignettes/BiocStyle/inst/doc/LatexStyle.pdf
-%
-<<style, eval=TRUE, echo=FALSE, results=tex>>=
+% [zimanr 11-Oct-2017]
+% The following line is a hack workaround to deal with a Sweave/LaTeX compile issue that came
+% up after recent changes to BiocStyle (cf.
+% https://github.com/Bioconductor/BiocStyle/blob/master/announcement.md (91e6565 on Aug 9)).
+\newlength\OuterFrameSep \OuterFrameSep=0mm
+
+<<style-knitr, eval=TRUE, echo=FALSE, results="asis">>=
 BiocStyle::latex()
 @
 
@@ -39,7 +46,7 @@ options(width=80)
 
 \title{NacoStringQCPro}
 \author{Dorothee Nickles, Thomas Sandmann, Robert Ziman, Richard Bourgon}
-\date{Modified: April 10, 2017. Compiled: \today}   % cf. Rsamtools/vignettes/Rsamtools-Overview.Rnw [zimanr 10-Apr-2017]
+\date{Modified: October 11, 2017. Compiled: \today}   % cf. Rsamtools/vignettes/Rsamtools-Overview.Rnw [zimanr 10-Apr-2017]
 
 \begin{document}
 

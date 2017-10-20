@@ -1,6 +1,10 @@
 Package: NanoStringQCPro
 ========================
 
+Version: 1.9.1 [2017-10-11]
+o Fixed vignette build issues following recent overhaul of BiocStyle (cf.
+  https://github.com/Bioconductor/BiocStyle/blob/master/announcement.md (91e6565 on Aug 9)).
+
 Version: 1.7.1 [2017-04-10]
 o Documentation improvements to address user-reported issues.
 
