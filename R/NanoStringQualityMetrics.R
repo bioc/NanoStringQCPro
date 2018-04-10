@@ -1720,7 +1720,11 @@ centeredSampleClustering <- function(gmrccSet,
     {
         flagged <- unique(unlist(apply(flags, 2, which)))
 
-        temp_rccSet <- copyRccSet(gmrccSet)[, -flagged]
+        if (length(flagged) > 0) {
+            temp_rccSet <- copyRccSet(gmrccSet)[, -flagged]
+        } else {
+            temp_rccSet <‐ copyRccSet(gmrccSet)
+        }
         
         gmrccSet <- contentNorm(temp_rccSet,
                                 method = "global",
