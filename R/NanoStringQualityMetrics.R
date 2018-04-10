@@ -1723,7 +1723,7 @@ centeredSampleClustering <- function(gmrccSet,
         if (length(flagged) > 0) {
             temp_rccSet <- copyRccSet(gmrccSet)[, -flagged]
         } else {
-            temp_rccSet <‐ copyRccSet(gmrccSet)
+            temp_rccSet <- copyRccSet(gmrccSet)
         }
         
         gmrccSet <- contentNorm(temp_rccSet,
