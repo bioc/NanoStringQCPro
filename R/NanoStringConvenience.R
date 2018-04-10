@@ -1056,7 +1056,7 @@ newRccSet <- function(rccFiles,
                     if (!file.exists(extraPdataPath))
                         stop( paste0("extraPdata file does not exist: \"", extraPdataPath, "\"") )
 
-                    xpd <- read.table(file=extraPdataPath, header=TRUE, sep="\t", stringsAsFactors=FALSE)
+                    xpd <- read.table(file=extraPdataPath, header=TRUE, sep="\t", stringsAsFactors=FALSE, comment.char="")
 
                     colnames(xpd)[ tolower(colnames(xpd)) == "filename" ] <- "FileName"
                     colnames(xpd)[ tolower(colnames(xpd)) == "sampletype" ] <- "SampleType"
