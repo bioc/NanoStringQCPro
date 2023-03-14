@@ -1,7 +1,7 @@
 Package: NanoStringQCPro
 Title: Quality metrics and data processing methods for NanoString mRNA
         gene expression data
-Version: 1.31.0
+Version: 1.31.1
 Date: 2018-04-10
 Author: Dorothee Nickles <nickles.dorothee@gene.com>, Thomas Sandmann
         <sandmann.thomas@gene.com>, Robert Ziman
@@ -26,3 +26,4 @@ biocViews: Microarray, mRNAMicroarray, Preprocessing, Normalization,
 LazyData: true
 RoxygenNote: 6.0.1
 VignetteBuilder: knitr
+PackageStatus: Deprecated
